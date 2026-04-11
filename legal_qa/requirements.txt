@@ -1,0 +1,29 @@
+# ============================================================
+# LEGAL QA SYSTEM — Kutubxonalar ro'yxati
+# ============================================================
+# O'rnatish: pip install -r requirements.txt
+
+# ── Asosiy kutubxonalar ──────────────────────────────────────
+
+# Hujjat o'qish
+PyMuPDF>=1.23.0           # PDF o'qish (fitz)
+python-docx>=1.0.0         # DOCX o'qish
+
+# Embedding va vektor qidirish
+sentence-transformers>=2.2.0  # Matnni vektorga aylantirish
+faiss-cpu>=1.7.4              # Vektor qidirish (CPU versiya)
+numpy>=1.24.0                 # Array hisoblash
+
+# HTTP so'rovlar (Claude API uchun)
+requests>=2.31.0
+
+# ── Qo'shimcha ────────────────────────────────────────────────
+
+# Token sanash (chunking uchun)
+tiktoken>=0.5.0
+
+# Ko'rish va logging
+colorama>=0.4.6    # Rangli terminal chiqishi
+
+# ── Ixtiyoriy (yaxshiroq UI uchun) ────────────────────────────
+rich>=13.0.0                  # Chiroyli terminal output

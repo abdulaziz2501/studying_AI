@@ -1,0 +1,58 @@
+EMPLOYMENT CONTRACT
+
+Article 1 — Parties
+This Employment Contract ("Contract") is entered into between:
+- EMPLOYER: TechCorp LLC, a company incorporated under the laws of Uzbekistan, Registration No. 123456
+- EMPLOYEE: John Smith, Passport No. AA1234567
+
+Article 2 — Position and Duties
+2.1 The Employee is hired for the position of Software Engineer in the Engineering Department.
+2.2 The Employee shall perform duties including: developing software applications, code review, participating in technical design discussions, and documentation.
+2.3 The Employee reports directly to the Head of Engineering.
+
+Article 3 — Compensation
+3.1 The Employee shall receive a monthly salary of USD 2,000 (two thousand US dollars), payable on the 25th of each month.
+3.2 Performance bonuses may be awarded quarterly based on Key Performance Indicators (KPIs) set by management.
+3.3 All payments are subject to applicable taxes and deductions required by law.
+
+Article 4 — Working Hours
+4.1 Standard working hours are Monday through Friday, 9:00 AM to 6:00 PM, with a one-hour lunch break.
+4.2 Overtime work exceeding 40 hours per week shall be compensated at 1.5 times the regular hourly rate.
+4.3 Remote work may be permitted up to 2 days per week subject to manager approval.
+
+Article 5 — Annual Leave and Benefits
+5.1 The Employee is entitled to 21 (twenty-one) calendar days of paid annual leave per year.
+5.2 Medical insurance coverage is provided for the Employee and immediate family members.
+5.3 The Employee is entitled to 10 days of sick leave per year with full pay.
+5.4 Public holidays as defined by Uzbekistan labor law are observed.
+
+Article 6 — Probation Period
+6.1 The Employee shall serve a probationary period of 3 (three) months from the start date.
+6.2 During the probation period, either party may terminate this contract with 3 days written notice.
+6.3 Upon successful completion of probation, the Employee receives full employment status.
+
+Article 7 — Confidentiality
+7.1 The Employee agrees to maintain strict confidentiality regarding all proprietary information, trade secrets, and business data of the Employer.
+7.2 This confidentiality obligation remains in force for 2 (two) years following termination of employment.
+7.3 Breach of confidentiality may result in immediate termination and legal action.
+
+Article 8 — Termination
+8.1 Either party may terminate this Contract with 30 (thirty) days written notice.
+8.2 The Employer may terminate the Contract immediately for cause, including but not limited to: gross misconduct, fraud, theft, or repeated violation of company policies.
+8.3 Upon termination, the Employee shall return all company property within 5 business days.
+8.4 Severance pay equal to one month's salary shall be paid for each year of service, up to a maximum of 6 months.
+
+Article 9 — Intellectual Property
+9.1 All work products, inventions, and developments created by the Employee in the course of employment are the exclusive property of the Employer.
+9.2 The Employee waives all moral rights to works created during employment.
+
+Article 10 — Non-Compete
+10.1 For a period of 12 (twelve) months following termination, the Employee shall not work for direct competitors of the Employer.
+10.2 Direct competitors are defined as companies providing software development services in Uzbekistan with revenues exceeding $1 million annually.
+
+Article 11 — Dispute Resolution
+11.1 Any disputes arising from this Contract shall first be subject to mediation for 30 days.
+11.2 If mediation fails, disputes shall be resolved through arbitration under Uzbekistan commercial arbitration rules.
+11.3 The governing law of this Contract is the law of the Republic of Uzbekistan.
+
+Signed on: January 1, 2025

@@ -1,0 +1,78 @@
+SOFTWARE SERVICE AGREEMENT
+
+Section 1 — Definitions
+In this Agreement, the following terms have the meanings set forth below:
+"Service Provider" refers to DevSolutions Ltd., a technology company.
+"Client" refers to any party that purchases services under this agreement.
+"Services" means software development, consulting, and maintenance services.
+"Deliverables" refers to all work products produced under this agreement.
+"Confidential Information" includes all technical, business, and financial information marked as confidential.
+
+Section 2 — Scope of Services
+2.1 The Service Provider agrees to provide the following services:
+    (a) Custom software development according to agreed specifications
+    (b) Technical consulting and architecture design
+    (c) System integration and API development
+    (d) Quality assurance and testing services
+    (e) Maintenance and support for delivered systems
+
+2.2 All services shall be performed in accordance with industry best practices and applicable standards.
+
+2.3 The Client shall provide all necessary access, data, and cooperation required for service delivery.
+
+Section 3 — Payment Terms
+3.1 Payment Structure: Services are billed on a time-and-materials basis at rates specified in Schedule A.
+3.2 Invoicing: Invoices shall be issued on the 1st of each month for work completed in the previous month.
+3.3 Payment Due Date: All invoices are due within 30 (thirty) days of invoice date.
+3.4 Late Payment Penalty: Late payments shall incur a penalty of 1.5% per month on the outstanding amount.
+3.5 Advance Payment: A 30% advance payment is required before project commencement.
+
+Section 4 — Project Delivery
+4.1 Delivery Timeline: Specific delivery dates are agreed upon in individual Project Orders.
+4.2 Delay Clause: If the Service Provider delays delivery by more than 15 business days due to their fault, the Client may claim a penalty of 0.5% of the project value per day of delay, up to 10% maximum.
+4.3 Acceptance Testing: The Client has 10 business days to review and accept deliverables.
+4.4 Change Requests: Any changes to agreed scope require written change orders and may affect timeline and cost.
+
+Section 5 — Intellectual Property Rights
+5.1 Upon full payment, all custom code and deliverables become the exclusive property of the Client.
+5.2 The Service Provider retains ownership of pre-existing tools, frameworks, and libraries used in development.
+5.3 The Service Provider may use generic technical approaches and methodologies in future projects.
+5.4 Both parties acknowledge open-source components are subject to their respective licenses.
+
+Section 6 — Warranty
+6.1 The Service Provider warrants that all deliverables will:
+    (a) Function materially as specified for 90 days after delivery
+    (b) Be free from material defects in workmanship
+    (c) Not infringe third-party intellectual property rights
+6.2 Warranty Remedy: For any warranty breach, the Service Provider shall correct defects at no additional cost.
+6.3 Warranty Exclusions: Warranty does not cover issues caused by Client modifications, misuse, or third-party software.
+
+Section 7 — Liability
+7.1 The Service Provider's total liability under this agreement shall not exceed the total fees paid in the 12 months preceding the claim.
+7.2 Neither party shall be liable for indirect, consequential, or punitive damages.
+7.3 This limitation does not apply to breaches of confidentiality obligations.
+
+Section 8 — Term and Termination
+8.1 This Agreement commences on the signing date and continues for 1 year, automatically renewing annually.
+8.2 Either party may terminate for convenience with 60 (sixty) days written notice.
+8.3 Either party may terminate immediately upon material breach if the breach is not cured within 14 days of written notice.
+8.4 Termination for Cause by Client: If the Service Provider fails to deliver agreed services for 30+ consecutive days without valid reason, the Client may terminate immediately.
+8.5 Upon termination, the Client shall pay for all services rendered up to the termination date.
+
+Section 9 — Data Protection
+9.1 The Service Provider shall implement appropriate technical and organizational measures to protect Client data.
+9.2 Client data shall not be used for any purpose other than service delivery.
+9.3 Upon termination, all Client data shall be returned or destroyed within 30 days.
+9.4 Data breaches must be notified to the Client within 72 hours of discovery.
+
+Section 10 — Force Majeure
+10.1 Neither party is liable for failures caused by circumstances beyond reasonable control, including natural disasters, pandemics, government actions, or infrastructure failures.
+10.2 The affected party must notify the other within 5 days of a force majeure event.
+10.3 If force majeure continues for more than 90 days, either party may terminate the agreement.
+
+Section 11 — Governing Law and Disputes
+11.1 This Agreement is governed by the laws of the Republic of Uzbekistan.
+11.2 Disputes shall be resolved through good-faith negotiations within 30 days.
+11.3 Unresolved disputes shall be submitted to the Tashkent Commercial Court.
+
+Effective Date: March 1, 2025
