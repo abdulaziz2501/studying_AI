@@ -100,8 +100,10 @@ def extract_section_hint(text: str) -> str:
         r'(?i)(chapter\s+[IVXivx\d]+)',
         r'(?i)(clause\s+\d+[\.\d]*)',
         r'(?i)(paragraph\s+\d+[\.\d]*)',
-        r'(?i)(moddasi?\s+\d+[\.\d]*)',   # O'zbek: modda
-        r'(?i)(bo\'lim\s+\d+[\.\d]*)',    # O'zbek: bo'lim
+        r'(?i)(modda(?:si|lari)?\s+\d+[\.\d]*)',   # O'zbek: modda, moddasi
+        r'(?i)(\d+-modda)',                       # O'zbek: 12-modda
+        r'(?i)(\d+\.\s+modda)',                   # O'zbek: 1. Modda
+        r'(?i)(bo\'lim\s+\d+[\.\d]*)',            # O'zbek: bo'lim
     ]
     
     first_200 = text[:200]

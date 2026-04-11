@@ -38,44 +38,50 @@ class ChunkConfig:
 # Smart Splitter
 # -------------------------------------------------------
 
-def get_split_points(text: str, split_on_sections: bool = True) -> List[int]:
+def get_section_split_points(text: str) -> List[int]:
     """
-    Matnni qayerdan bo'lish kerakligini aniqlaydi.
-    Ustuvorlik tartibi:
-    1. Modda/bo'lim sarlavhalari (Article, Section, ...)
-    2. Ikki bo'sh qator (paragraflar orasidagi bo'shliq)
-    3. Bir bo'sh qator
-    4. Nuqta (.)
-    
-    Args:
-        text: Bo'linadigan matn
-        split_on_sections: Bo'lim sarlavhalarida bo'lishni yoqish
-    
-    Returns:
-        Tavsiya etilgan bo'linish nuqtalari (indekslar)
+    Faqat modda va bo'lim sarlavhalari bo'yicha bo'linish nuqtalarini topadi.
     """
     split_points = []
     
-    if split_on_sections:
-        # Modda va bo'lim sarlavhalarini topish
-        section_patterns = [
-            r'\n(?=(?i:article|section|chapter|clause|paragraph)\s+\d)',
-            r'\n(?=(?i:moddasi?|bo\'lim)\s+\d)',
-            r'\n(?=\d+\.\d*\s+[A-Z])',   # "1.2 Title" kabi raqamlangan sarlavhalar
-        ]
-        
-        for pattern in section_patterns:
-            for match in re.finditer(pattern, text):
-                split_points.append(match.start())
+    # Modda va bo'lim sarlavhalarini ushlash uchun qoidalar
+    section_patterns = [
+        r'\n(?=(?i:article|section|chapter|clause|paragraph)\s+\d)',
+        r'\n(?=(?i:moddasi?|moddalari)\s+\d)',  # masalan: "moddasi 12", "moddalari"
+        r'\n(?=(?i:bo\'lim)\s+\d)',
+        r'\n(?=\d+-modda)',                     # masalan: "12-modda"
+        r'\n(?=\d+\.\s+(?i:modda|bo\'lim))',    # masalan: "1. Modda"
+        r'\n(?=\d+\.\d*\s+[A-Z])',              # "1.2 Title"
+    ]
     
-    # Ikki bo'sh qator
+    for pattern in section_patterns:
+        for match in re.finditer(pattern, text):
+            split_points.append(match.start())
+            
+    # Hujjat boshidagi sarlavhalar uchun (agar \n bilan boshlanmasa)
+    start_patterns = [
+        r'^(?=(?i:article|section|chapter|clause|paragraph)\s+\d)',
+        r'^(?=(?i:moddasi?|moddalari)\s+\d)',
+        r'^(?=(?i:bo\'lim)\s+\d)',
+        r'^\d+-modda',
+        r'^\d+\.\s+(?i:modda|bo\'lim)',
+    ]
+    
+    for pattern in start_patterns:
+        if re.search(pattern, text):
+            split_points.append(0)
+            break
+            
+    return sorted(set(split_points))
+
+
+def get_paragraph_split_points(text: str) -> List[int]:
+    """Oddiy paragraf va \n orqali bo'linish nuqtalari (moddalar topilmasa)"""
+    split_points = []
     for match in re.finditer(r'\n\n+', text):
         split_points.append(match.start())
-    
-    # Bir bo'sh qator
     for match in re.finditer(r'\n', text):
         split_points.append(match.start())
-    
     return sorted(set(split_points))
 
 
@@ -87,51 +93,55 @@ def split_text_with_overlap(
     split_on_sections: bool = True,
 ) -> List[Tuple[str, int, int]]:
     """
-    Matnni overlap bilan bo'laklarga ajratadi.
-    
-    Bu funksiya oddiy belgi bo'lishidan ko'ra aqlliroq:
-    - Avval tabiiy bo'linish nuqtalarini topadi
-    - Keyin chunk_size ga yaqin joyda bo'ladi
-    - Overlap uchun oldingi chunk oxirini qo'shadi
-    
-    Args:
-        text: Ajratiladigan matn
-        chunk_size: Maqsadli chunk hajmi (belgilar)
-        overlap: Qo'shni chunk'lar orasidagi umumiy belgilar
-        min_chunk_size: Minimal chunk hajmi
-        split_on_sections: Bo'lim sarlavhalarida bo'lish
-    
-    Returns:
-        (chunk_text, char_start, char_end) tuple'lari ro'yxati
+    Matnni moddalar (articles) yoki overlap bilan bo'laklarga ajratadi.
+    Agar matnda moddalar ko'rsatilgan bo'lsa, har bir modda bitta yaxlit chunk bo'ladi.
     """
     if not text.strip():
         return []
+        
+    chunks = []
     
+    if split_on_sections:
+        # Moddalar bo'yicha ajratishga urinamiz
+        section_points = get_section_split_points(text)
+        
+        if len(section_points) > 0:
+            if 0 not in section_points:
+                section_points.insert(0, 0)
+            if len(text) not in section_points:
+                section_points.append(len(text))
+                
+            for i in range(len(section_points) - 1):
+                start = section_points[i]
+                end = section_points[i + 1]
+                
+                chunk_text = text[start:end].strip()
+                if len(chunk_text) >= min_chunk_size:
+                    chunks.append((chunk_text, start, end))
+                    
+            if chunks:
+                return chunks
+                
+    # Moddalar topilmasa yoki split_on_sections=False bo'lsa, uzunligi bo'yicha overlap qilib qirqamiz
     if len(text) <= chunk_size:
         return [(text, 0, len(text))]
-    
-    # Tabiiy bo'linish nuqtalarini topish
-    split_points = get_split_points(text, split_on_sections)
+        
+    split_points = get_paragraph_split_points(text)
     split_points = [0] + split_points + [len(text)]
     split_points = sorted(set(split_points))
     
-    chunks = []
     current_start = 0
-    
     while current_start < len(text):
-        # Maqsadli tugash nuqtasi
         target_end = current_start + chunk_size
         
         if target_end >= len(text):
-            # Oxirgi chunk
             chunk_text = text[current_start:].strip()
             if len(chunk_text) >= min_chunk_size:
                 chunks.append((chunk_text, current_start, len(text)))
             break
-        
-        # Maqsadli tugash nuqtasiga eng yaqin tabiiy bo'linish nuqtasini topish
+            
         best_split = target_end
-        best_distance = chunk_size  # Maksimal qidiruv masofasi
+        best_distance = chunk_size
         
         for point in split_points:
             if current_start < point <= target_end + 200:
@@ -139,15 +149,13 @@ def split_text_with_overlap(
                 if distance < best_distance:
                     best_distance = distance
                     best_split = point
-        
+                    
         chunk_text = text[current_start:best_split].strip()
-        
         if len(chunk_text) >= min_chunk_size:
             chunks.append((chunk_text, current_start, best_split))
-        
-        # Keyingi chunk uchun boshlanish nuqtasi (overlap bilan)
+            
         current_start = max(current_start + 1, best_split - overlap)
-    
+        
     return chunks
 
 

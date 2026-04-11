@@ -17,8 +17,8 @@ import sys
 import os
 import argparse
 
-# Loyiha papkasini Python path ga qo'shish
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Loyiha papkasini (ya'ni studying_AI) Python path ga qo'shish
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from legal_qa import build_legal_model, load_legal_model
 
