@@ -3,9 +3,9 @@
 LEGAL QA SYSTEM — Demo va Test Script
 =============================================================
 Ishga tushirish:
-    python main.py
-    python main.py --folder /path/to/your/docs
-    python main.py --save ./my_model --load ./my_model
+    python Detecting.py
+    python Detecting.py --folder /path/to/your/docs
+    python Detecting.py --save ./my_model --load ./my_model
 
 Bu script:
 1. Sample hujjatlar bilan tizimni quradi
@@ -151,11 +151,11 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Misollar:
-  python main.py                                   # Demo hujjatlar bilan
-  python main.py --folder /path/to/docs            # O'z hujjatlaringiz
-  python main.py --folder ./docs --save ./model    # Qurib saqlash
-  python main.py --load ./model                    # Saqlangan modelni yuklash
-  python main.py --folder ./docs --api YOUR_KEY    # Claude API bilan
+  python Detecting.py                                   # Demo hujjatlar bilan
+  python Detecting.py --folder /path/to/docs            # O'z hujjatlaringiz
+  python Detecting.py --folder ./docs --save ./model    # Qurib saqlash
+  python Detecting.py --load ./model                    # Saqlangan modelni yuklash
+  python Detecting.py --folder ./docs --api YOUR_KEY    # Claude API bilan
         """
     )
     

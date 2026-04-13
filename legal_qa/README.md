@@ -33,10 +33,10 @@ legal_qa/
 pip install -r requirements.txt
 
 # 2. Demo ishga tushirish
-python main.py
+python Detecting.py
 
 # 3. O'z hujjatlaringiz bilan
-python main.py --folder /path/to/your/documents
+python Detecting.py --folder /path/to/your/documents
 ```
 
 ---
