@@ -2,7 +2,10 @@ import cv2
 from ultralytics import YOLO
 
 # 1. Model yuklash
-model = YOLO("yolov8n.pt")
+
+device = 'cuda'
+model = YOLO("yolo11l.pt").to(device)
+
 
 # 2. Webcam
 cap = cv2.VideoCapture(0)

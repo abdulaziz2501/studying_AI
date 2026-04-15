@@ -1,9 +1,9 @@
 import cv2
 from ultralytics import YOLO
 
-model = YOLO("yolo11l.pt")
+model = YOLO("yolo11l.pt").to('cuda')
 cv2.namedWindow("Camera", cv2.WINDOW_NORMAL)
-cv2.resizeWindow("Camera", 640, 480)
+cv2.resizeWindow("Camera", 2560, 1440)
 
 cap = cv2.VideoCapture(0)
 if not cap.isOpened():
@@ -17,7 +17,7 @@ while True:
     ret, frame = cap.read()
     if not ret:
         break
-    # frame = cv2.resize(frame, (1080, 720))
+    frame = cv2.resize(frame, (2560, 1440))
     results=model(frame)
     annotated_frame= results[0].plot()
 
