@@ -1,63 +1,53 @@
-# Professional Real-time OCR Camera Application
+# Production-Ready Real-time OCR & LPR System
 
-A high-performance OCR system that detects and recognizes text from live camera feeds using YOLOv8 and EasyOCR/Tesseract.
+A high-performance, scalable, and robust License Plate Recognition (LPR) system designed for real-world production environments.
 
-## 🚀 Features
+## 🌟 Pro Features
 
-- **Real-time Performance**: Threaded camera capture and asynchronous processing maintain high FPS (15-25+).
-- **Advanced Text Detection**: Modular YOLOv8 integration for identifying text regions.
-- **Switchable OCR Engines**: Support for EasyOCR (Deep Learning based) and Tesseract.
-- **Optimized for GPU**: Automatic CUDA acceleration for detection and OCR.
-- **Modular Architecture**: Clean separation of camera, preprocessing, detection, and OCR logic.
+- **3-Thread Architecture**: Decoupled Camera, Inference (Tracking), and OCR pipelines for maximum throughput.
+- **Deep Tracking**: Powered by YOLOv8 ByteTrack/BoT-SORT to maintain object continuity.
+- **Temporal Smoothing**: Majority-voting system to stabilize OCR results and prevent flickering.
+- **LPR Specialization**: Domain-specific regex cleaning and character correction (e.g., misreads like O/0).
+- **Production API**: Built-in FastAPI REST service for remote inference.
+- **Dockerized**: Ready for containerized deployment in minutes.
 
-## 🛠️ Installation
+## 🏗️ Architecture
 
-1. **Clone the repository**:
-   ```bash
-   cd pro_ocr_camera
-   ```
+1.  **Thread 1 (Main/UI)**: Captures video and renders the stabilized overlays at high FPS.
+2.  **Thread 2 (Inference)**: Runs YOLOv8 tracking to identify and follow plates.
+3.  **Thread 3 (OCR)**: Targeted recognition on specific track IDs. Results are cached and smoothed over time.
 
-2. **Install Python dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## 🛠️ Setup & Installation
 
-3. **Install Tesseract (Optional)**:
-   If you wish to use the Tesseract engine:
-   ```bash
-   sudo apt update
-   sudo apt install tesseract-ocr
-   ```
+### 1. Clone & Install
+```bash
+git clone <repo_url>
+cd pro_ocr_camera
+pip install -r requirements.txt
+```
 
-## 💻 Usage
+### 2. Run with Docker (Recommended)
+```bash
+docker build -t pro-ocr-system .
+docker run -p 8000:8000 pro-ocr-system
+```
 
-1. **Configure the application**:
-   Edit `config.py` to change settings like:
-   - `CAMERA_SOURCE`: Change to RTSP URL or external webcam index.
-   - `OCR_ENGINE`: Switch between `"easyocr"` and `"tesseract"`.
-   - `RESIZE_SCALE`: Adjust for better performance.
+### 3. Run Locally
+- **Real-time Camera**: `python main.py`
+- **REST API Server**: `python -m uvicorn api.app:app --reload`
 
-2. **Run the application**:
-   ```bash
-   python main.py
-   ```
+## ⚙️ Configuration
+Modify `config.py` to tune the system:
+- `LPR_REGEX`: Customize to your region's plate format.
+- `SMOOTHING_WINDOW`: Adjust for more or less "memory" in text stabilization.
+- `FRAME_SKIP`: Optimize detection load on legacy CPUs.
 
-3. **Interactions**:
-   - The UI displays detected text and bounding boxes.
-   - Press **'q'** to quit the application.
+## 📊 Performance Metrics (Example)
+- **Preview FPS**: 60+ (independent of OCR)
+- **Tracking Latency**: ~15ms (YOLO11n-based)
+- **OCR Latency**: ~100-200ms (Asynchronized)
+- **Stability**: OCR results stabilize within 3-5 frames of detection.
 
-## 🏗️ Project Structure
-
-- `main.py`: Entry point and main loop.
-- `camera/`: Video stream handling.
-- `preprocessing/`: Image filtering and resizing.
-- `detection/`: YOLOv8 text detection logic.
-- `ocr/`: Character recognition engines.
-- `utils/`: UI drawing helper functions.
-- `config.py`: Global configuration.
-
-## 📊 Performance Tips
-
-- For maximum speed, ensure you have an NVIDIA GPU and CUDA installed.
-- Increase `FRAME_SKIP` in `config.py` if the CPU is struggling.
-- Use `RESIZE_SCALE = 0.5` or lower to speed up text detection on large frames.
+## 📸 Usage
+- Press **'q'** to quit.
+- Press **'s'** to save a timestamped screenshot of current detections.

@@ -4,115 +4,137 @@ import threading
 from queue import Queue
 from config import Config
 from camera.camera_stream import CameraStream
-from preprocessing.image_utils import ImageUtils
-from detection.text_detector import TextDetector
+from tracking.tracker import ObjectTracker
 from ocr.ocr_engine import OCRFactory
+from postprocessing.text_cleaner import TextCleaner
+from postprocessing.smoother import TemporalSmoother
 from utils.draw import DrawingUtils
 
-class OCRApp:
+class ProductionOCRSystem:
     def __init__(self):
         Config.setup()
-        self.stream = CameraStream(
-            source=Config.CAMERA_SOURCE,
-            width=Config.FRAME_WIDTH,
-            height=Config.FRAME_HEIGHT
-        ).start()
+        # Queues
+        self.inference_queue = Queue(maxsize=2)
+        self.ocr_queue = Queue(maxsize=10)
         
-        self.detector = TextDetector(
-            model_path=Config.DETECTION_MODEL_PATH,
-            conf=Config.DETECTION_CONFIDENCE,
-            device=Config.DEVICE
-        )
+        # Engines
+        self.stream = CameraStream(Config.CAMERA_SOURCE).start()
+        self.tracker = ObjectTracker(Config.DETECTION_MODEL_PATH, device=Config.DEVICE)
+        self.ocr_engine = OCRFactory.get_engine(Config.OCR_ENGINE, gpu=Config.USE_GPU)
+        self.cleaner = TextCleaner(Config.LPR_REGEX, Config.CHAR_CORRECTIONS)
+        self.smoother = TemporalSmoother(Config.SMOOTHING_WINDOW)
         
-        self.ocr_engine = OCRFactory.get_engine(
-            engine_type=Config.OCR_ENGINE,
-            languages=Config.LANGUAGES,
-            gpu=Config.USE_GPU
-        )
-        
-        self.results_queue = Queue(maxsize=1)
-        self.latest_results = []
-        self.processing_latency = 0
+        # State
         self.running = True
-        
-        # Start background processing thread
-        self.proc_thread = threading.Thread(target=self.process_frames, daemon=True)
-        self.proc_thread.start()
+        self.lock = threading.Lock()
+        self.active_tracks = {} # {track_id: {"bbox": [], "text": "", "conf": 0}}
+        self.fps_avg = 0
+        self.latency_inference = 0
+        self.latency_ocr = 0
 
-    def process_frames(self):
-        """Background thread for heavy heavy computations (Detection + OCR)."""
-        frame_count = 0
+    def inference_loop(self):
+        """Thread 2: Tracking"""
         while self.running:
             grabbed, frame = self.stream.read()
             if not grabbed or frame is None:
                 continue
             
-            frame_count += 1
-            if frame_count % Config.FRAME_SKIP != 0:
+            start_t = time.time()
+            tracks = self.tracker.track(frame)
+            self.latency_inference = (time.time() - start_t) * 1000
+            
+            current_ids = []
+            with self.lock:
+                for track in tracks:
+                    x1, y1, x2, y2, track_id, conf, cls = track
+                    current_ids.append(track_id)
+                    
+                    # Update bbox immediately for UI
+                    if track_id not in self.active_tracks:
+                        self.active_tracks[track_id] = {"bbox": [x1, y1, x2, y2], "text": "Detecting...", "conf": conf}
+                    else:
+                        self.active_tracks[track_id]["bbox"] = [x1, y1, x2, y2]
+                    
+                    # Push to OCR queue if it's a new track or we want to re-verify
+                    if not self.ocr_queue.full():
+                        crop, offset = self.tracker.get_crop_by_id(frame, track)
+                        self.ocr_queue.put((track_id, crop))
+
+                # Cleanup smoother and active tracks
+                self.smoother.cleanup_old_tracks(current_ids)
+                dead_ids = [tid for tid in self.active_tracks if tid not in current_ids]
+                for tid in dead_ids:
+                    del self.active_tracks[tid]
+            
+            time.sleep(0.01)
+
+    def ocr_loop(self):
+        """Thread 3: OCR"""
+        while self.running:
+            try:
+                track_id, crop = self.ocr_queue.get(timeout=1)
+            except:
                 continue
                 
-            start_time = time.time()
+            start_t = time.time()
+            ocr_results = self.ocr_engine.recognize(crop)
+            self.latency_ocr = (time.time() - start_t) * 1000
             
-            # 1. Pre-process for detection (optional resize for speed)
-            detection_frame = ImageUtils.resize_frame(frame, scale=Config.RESIZE_SCALE)
+            if ocr_results:
+                raw_text = ocr_results[0]['text']
+                clean_text = self.cleaner.clean(raw_text)
+                stable_text = self.smoother.update(track_id, clean_text)
+                
+                with self.lock:
+                    if track_id in self.active_tracks:
+                        self.active_tracks[track_id]["text"] = stable_text
             
-            # 2. Text Detection
-            # Note: Since we resized, we need to scale boxes back to original size
-            detections = self.detector.detect(detection_frame)
-            scale = 1.0 / Config.RESIZE_SCALE
-            
-            scaled_detections = []
-            for det in detections:
-                x1, y1, x2, y2, conf, cls = det
-                scaled_detections.append((
-                    int(x1 * scale), int(y1 * scale), 
-                    int(x2 * scale), int(y2 * scale), 
-                    conf, cls
-                ))
-            
-            # 3. OCR on detected regions (or full frame if no regions)
-            ocr_results = []
-            if scaled_detections:
-                crops = self.detector.get_cropped_regions(frame, scaled_detections)
-                for i, crop in enumerate(crops):
-                    # Optional: ImageUtils.prepare_for_ocr(crop)
-                    res = self.ocr_engine.recognize(crop)
-                    # Adjust OCR bboxes back to global frame coordinates
-                    offset_x, offset_y = scaled_detections[i][0], scaled_detections[i][1]
-                    for r in res:
-                        # This part depends on OCR engine bbox format. 
-                        # We'll simplify for the demo and just store text if offset is complex
-                        ocr_results.append(r) 
-            else:
-                # Fallback: process entire frame if no detection models found or specified
-                # ocr_results = self.ocr_engine.recognize(frame)
-                pass
+            self.ocr_queue.task_done()
 
-            self.latest_results = ocr_results
-            self.processing_latency = (time.time() - start_time) * 1000
-            
     def run(self):
+        # Start background threads
+        t_inf = threading.Thread(target=self.inference_loop, daemon=True)
+        t_ocr = threading.Thread(target=self.ocr_loop, daemon=True)
+        t_inf.start()
+        t_ocr.start()
+        
         prev_time = time.time()
+        
         try:
             while True:
                 grabbed, frame = self.stream.read()
                 if not grabbed or frame is None:
                     break
                 
-                # Draw latest available results
-                frame = DrawingUtils.draw_ocr_results(frame, self.latest_results)
+                # Render UI
+                with self.lock:
+                    items = list(self.active_tracks.items())
+                    
+                for tid, data in items:
+                    x1, y1, x2, y2 = data["bbox"]
+                    text = data["text"]
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.putText(frame, f"ID:{tid} {text}", (x1, y1 - 10), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                 
-                # Calculate display FPS
+                # Global Stats
                 curr_time = time.time()
                 fps = 1.0 / (curr_time - prev_time)
                 prev_time = curr_time
                 
-                frame = DrawingUtils.draw_fps(frame, fps, self.processing_latency)
+                stats = f"FPS: {fps:.1f} | Inf: {self.latency_inference:.1f}ms | OCR: {self.latency_ocr:.1f}ms"
+                cv2.putText(frame, stats, (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
                 
-                cv2.imshow("Pro Real-Time OCR", frame)
+                cv2.imshow("Production Real-Time LPR", frame)
                 
-                if cv2.waitKey(1) & 0xFF == ord('q'):
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord('q'):
                     break
+                elif key == ord('s'): # Screenshot feature
+                    fname = f"outputs/cap_{int(time.time())}.jpg"
+                    cv2.imwrite(fname, frame)
+                    print(f"Saved screenshot: {fname}")
+                    
         finally:
             self.stop()
 
@@ -122,5 +144,5 @@ class OCRApp:
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    app = OCRApp()
-    app.run()
+    system = ProductionOCRSystem()
+    system.run()
