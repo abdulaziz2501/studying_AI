@@ -1,0 +1,39 @@
+# Pothole Detection System Configuration
+
+model:
+  model_type: "yolov8n-seg.pt"  # yolov8n-seg, yolov8s-seg, yolov8m-seg
+  img_size: 640
+  task: "segment"
+
+training:
+  data: "data/data.yaml"
+  epochs: 100
+  batch_size: 16  # Optimized for RTX 3080
+  device: 0       # GPU device ID
+  workers: 8
+  optimizer: "AdamW"
+  lr0: 0.01
+  momentum: 0.937
+  weight_decay: 0.0005
+  augment:
+    hsv_h: 0.015
+    hsv_s: 0.7
+    hsv_v: 0.4
+    degrees: 0.0
+    translate: 0.1
+    scale: 0.5
+    shear: 0.0
+    perspective: 0.0
+    flipud: 0.0
+    fliplr: 0.5
+    mosaic: 1.0
+    mixup: 0.0
+
+inference:
+  conf_threshold: 0.45
+  iou_threshold: 0.45
+  min_mask_area: 500  # Minimum pixels to consider a pothole (prevents noise)
+  fp16: true
+  source: 0           # Webcam index or video file path
+  save_results: true
+  output_dir: "runs/detect"

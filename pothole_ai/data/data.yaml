@@ -1,0 +1,16 @@
+# YOLOv8 Pothole Segmentation Dataset Configuration
+
+# Path to the dataset root
+path: ./data 
+
+# Paths to the train, val, and test image folders (relative to 'path')
+train: images/train
+val: images/val
+test: images/test
+
+# Classes
+names:
+  0: pothole
+
+# Note: For segmentation, labels folder should contain .txt files 
+# in the format: <class-index> <x1> <y1> <x2> <y2> ... <xn> <yn> (normalized coordinates)
